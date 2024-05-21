@@ -10,6 +10,8 @@ const leftButton = document.querySelector('#left');
 const rightButton = document.querySelector('#right');
 const imageElements = container.children;
 const imageList = [Coke, Pepsi, Sprite, DrPepper, Schweppes]
+const navbar = document.querySelector('.navbar')
+const navigationDots = document.querySelectorAll('.dots a');
 let index = 0;
 
 function appendImage(images, element) {
@@ -21,38 +23,69 @@ function appendImage(images, element) {
   }
 }
 
-appendImage(imageList, container);
+function clearNavDots() {
+  navigationDots.forEach((dot) => {
+    dot.classList.remove('active');
+  })
+}
 
-imageElements[index].classList.add('visible');
+function resetSlides() {
+  index = 0;
+  imageElements[index].classList.add('visible');
+  navigationDots[index].classList.add('active');
+
+}
+
+function nextSlide() {
+  imageElements[index].classList.remove('visible');
+  clearNavDots();
+
+  // use mod to reset index back to 0
+  index = (index + 1) % imageElements.length;
+
+  imageElements[index].classList.add('visible');
+  navigationDots[index].classList.add('active');
+}
+
+// use setInterval instead of setTimeout and loop
+function delayNextSlide() {
+  setInterval(() => {
+    nextSlide();
+  }, 5000);
+}
 
 rightButton.addEventListener('click', () => {
-  if (index + 1 < imageElements.length) {
-    imageElements[index].classList.remove('visible');
-
-    index++
-
-    imageElements[index].classList.add('visible');
-  }
+  nextSlide();
 })
 
 leftButton.addEventListener('click', () => {
   if (index - 1 >= 0) {
     imageElements[index].classList.remove('visible');
+    clearNavDots();
 
     index--
 
     imageElements[index].classList.add('visible');
+    navigationDots[index].classList.add('active');
   }
 })
 
-const navbar = document.querySelector('.navbar')
-const navigationDots = document.querySelectorAll('.dots a');
 
 navbar.addEventListener('click', (e) => {
   if (e.target.tagName.toLowerCase() === 'a') {
-    navigationDots.forEach((dot) => {
-      dot.classList.remove('active');
+    clearNavDots();
+
+    [...imageElements].forEach((image) => {
+      image.classList.remove('visible');
     })
+
     e.target.classList.add('active');
+
+    index = e.target.dataset.index;
+    imageElements[index].classList.add('visible');
   }
 })
+
+appendImage(imageList, container);
+resetSlides();
+delayNextSlide();
